@@ -1,446 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kích hoạt bản quyền | LicSys Demo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kích hoạt & ChatGPT</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-  :root{
-    --bg: #0f1226;
-    --card: rgba(255,255,255,0.08);
-    --card-strong: rgba(255,255,255,0.12);
-    --text: #eef2ff;
-    --muted: #c7cbe6;
-    --primary: #7c5cff;
-    --primary-2: #3dd9eb;
-    --success: #42d392;
-    --danger: #ff5c7c;
-    --warning: #f6c945;
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-    --radius: 16px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    color:var(--text);
-    background:
-      radial-gradient(1200px 600px at 10% -10%, #2a1b64 0%, rgba(2,7,60,0) 60%),
-      radial-gradient(900px 500px at 110% 30%, #0b6672 0%, rgba(11,102,114,0) 60%),
-      linear-gradient(180deg, #0b0d1f 0%, #0f1226 70%);
-    display:flex; align-items:center; justify-content:center; padding:24px;
-  }
-  .wrap{width:100%; max-width:980px}
-  header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
-  .logo{
-    display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px
-  }
-  .logo .mark{
-    width:36px; height:36px; border-radius:12px; background:
-      conic-gradient(from 180deg at 50% 50%, var(--primary), var(--primary-2));
-    box-shadow: 0 6px 20px rgba(124,92,255,.4), 0 2px 6px rgba(61,217,235,.25);
-  }
-  .subtle a{color:var(--muted); text-decoration:none}
-  .grid{
-    display:grid; grid-template-columns:1.1fr .9fr; gap:18px;
-  }
-  @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
-
-  .card{
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px;
-    backdrop-filter: blur(10px);
-  }
-  .card h2{margin:0 0 12px 0; font-size:20px}
-  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .muted{color:var(--muted)}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
-  .input, .select{
-    width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
-    background: rgba(255,255,255,.06); color:var(--text); outline:none;
-  }
-  .btn{
-    appearance:none; border:none; border-radius:12px; padding:12px 16px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    color:#0b0d1f; font-weight:700; cursor:pointer; transition:.15s transform ease, .2s filter ease;
-    box-shadow: 0 8px 24px rgba(124,92,255,.35), inset 0 0 0 1px rgba(255,255,255,.2);
-  }
-  .btn:hover{transform:translateY(-1px)}
-  .btn:active{transform:translateY(0)}
-  .btn.ghost{
-    background: transparent; color: var(--text); border:1px dashed rgba(255,255,255,.25);
-    box-shadow:none; font-weight:600;
-  }
-  .btn.warn{background: linear-gradient(135deg, #ff7a7a, #ffb86c); color:#1a0f18}
-  .kpi{
-    display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:12px
-  }
-  .kpi .item{
-    background: var(--card-strong); border: 1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px
-  }
-  .badge{
-    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px;
-    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1)
-  }
-  .badge.s{background: rgba(66,211,146,.12); color:#b8f5d6; border-color: rgba(66,211,146,.35)}
-  .badge.w{background: rgba(246,201,69,.12); color:#ffe8a6; border-color: rgba(246,201,69,.35)}
-  .badge.d{background: rgba(255,92,124,.12); color:#ffc2cf; border-color: rgba(255,92,124,.35)}
-  .help{font-size:13px; margin-top:8px}
-  .hidden{display:none !important}
-  .toast{
-    position:fixed; right:16px; bottom:16px; min-width:240px; max-width: 360px; z-index:10;
-    background:#121632; color:#eaf2ff; border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 14px; box-shadow: var(--shadow);
-    transform: translateY(20px); opacity:0; pointer-events:none; transition: all .25s ease;
-  }
-  .toast.show{transform: translateY(0); opacity:1}
-  footer{margin-top:18px; text-align:center; color:var(--muted); font-size:13px}
-  code.inline{background: rgba(255,255,255,.08); padding:2px 6px; border-radius:6px}
-  .mini{font-size:12px}
+body { background: linear-gradient(to right, #6a11cb, #2575fc); color: #fff; }
+.container { max-width: 600px; margin-top: 50px; padding: 20px; background: rgba(0,0,0,0.6); border-radius: 15px; }
+#user-panel { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px; }
+#chat-box { height: 300px; overflow-y: auto; border: 1px solid #fff; padding: 10px; margin-bottom: 10px; border-radius: 10px; background: rgba(255,255,255,0.1);}
+.status { font-weight: bold; padding: 2px 6px; border-radius: 5px; }
+.status.inactive { background-color: #ffc107; color: #000; } /* vàng */
+.status.active { background-color: #28a745; color: #fff; }    /* xanh */
+.status.expired { background-color: #dc3545; color: #fff; }   /* đỏ */
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="logo"><div class="mark"></div><div>LicSys <span class="muted">Demo</span></div></div>
-    <div class="subtle"><a href="admin.html" aria-label="Mở trang quản trị">Trang quản trị →</a></div>
-  </header>
+<div class="container text-center">
+    <h2>Kích hoạt Web & ChatGPT Demo</h2>
 
-  <div class="grid">
-    <!-- Device card -->
-    <section class="card">
-      <h2>Thiết bị của bạn</h2>
-      <div class="muted">Hãy sao chép <strong>Device ID</strong> và gửi cho admin để được thêm vào key.</div>
-      <div class="row" style="margin-top:12px">
-        <input id="deviceId" class="input mono" readonly aria-label="Device ID">
-        <button class="btn" id="copyDeviceBtn">Sao chép ID</button>
-      </div>
-      <div class="help mini">Nếu admin chưa thêm ID này vào key, bạn sẽ không kích hoạt được.</div>
-    </section>
+    <!-- Panel kích hoạt key -->
+    <div id="activation-panel">
+        <p>ID Thiết bị: <span id="device-id"></span> 
+            <button class="btn btn-sm btn-light" id="copy-btn">Copy</button>
+        </p>
+        <input type="text" id="key-input" class="form-control" placeholder="Nhập key kích hoạt">
+        <button class="btn btn-primary w-100 mt-2" id="activate-btn">Kích hoạt</button>
+    </div>
 
-    <!-- Activation / License card -->
-    <section class="card" id="activationCard">
-      <h2>Trạng thái bản quyền</h2>
+    <!-- Panel user + chat -->
+    <div id="user-panel" style="display:none;">
+        <h3>Xin chào, <span id="username"></span></h3>
+        <p>Trạng thái: <span id="key-status" class="status inactive">Chưa kích hoạt</span></p>
+        <p>Thời hạn còn lại: <span id="remaining"></span></p>
+        <button class="btn btn-danger mb-3" id="logout-btn">Đăng xuất</button>
 
-      <!-- Form kích hoạt -->
-      <div id="formView">
-        <div class="muted">Nhập <strong>Key kích hoạt</strong> được cấp từ <code class="inline">admin.html</code> để mở khoá sử dụng.</div>
-        <div class="row" style="margin-top:12px">
-          <input id="licenseInput" class="input mono" placeholder="VD: ABCD-EFGH-1234" autocomplete="one-time-code" aria-label="Nhập key kích hoạt">
-          <button class="btn" id="activateBtn">Kích hoạt</button>
-        </div>
-        <div class="help mini">Chưa có key? Gửi Device ID cho admin để được cấp.</div>
-      </div>
-
-      <!-- Đã kích hoạt -->
-      <div id="activeView" class="hidden">
-        <div class="row" style="justify-content:space-between">
-          <div class="badge" id="statusBadge"><span>Đang kiểm tra…</span></div>
-          <button class="btn ghost" id="refreshBtn">Làm mới</button>
-        </div>
-
-        <div class="kpi">
-          <div class="item">
-            <div class="muted mini">Người dùng</div>
-            <div id="userName" style="font-weight:700; margin-top:4px">—</div>
-          </div>
-          <div class="item">
-            <div class="muted mini">Mã kích hoạt</div>
-            <div class="row" style="margin-top:4px; justify-content:space-between">
-              <div class="mono" id="keyCode">—</div>
-              <button class="btn ghost" id="copyKeyBtn" title="Sao chép key">Copy</button>
-            </div>
-          </div>
-          <div class="item">
-            <div class="muted mini">Thời gian còn lại</div>
-            <div id="remaining" style="font-weight:700; margin-top:4px">—</div>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:12px">
-          <div class="muted mini">Hết hạn lúc: <span id="expiresAt">—</span></div>
-        </div>
-
-        <div class="row" style="margin-top:14px; justify-content:flex-end; gap:10px">
-          <button class="btn warn" id="deactivateBtn" title="Thoát bản quyền trên thiết bị này">Đăng xuất</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <footer>
-    © <span id="year"></span> LicSys Demo • Lưu ý: dữ liệu lưu trên <strong>localStorage</strong> (demo).
-  </footer>
+        <div id="chat-box"></div>
+        <input type="text" id="chat-input" class="form-control" placeholder="Nhập câu hỏi...">
+        <button class="btn btn-success w-100 mt-2" id="send-btn">Gửi</button>
+        <p class="mt-2 text-warning" id="limit-msg"></p>
+    </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script>
-/* ===========================
-   LicSys DEMO (Client-only)
-   - Lưu trữ bằng localStorage
-   - Không dùng server
-   =========================== */
+// ID thiết bị cố định
+let deviceId = localStorage.getItem("device_id");
+if(!deviceId){
+    deviceId = 'DEV-' + Math.random().toString(36).substring(2,10).toUpperCase();
+    localStorage.setItem("device_id", deviceId);
+}
+document.getElementById("device-id").innerText = deviceId;
 
-const LS_KEYS = {
-  KEYS_DB: 'licsys_keys',
-  ADMIN_DB: 'licsys_admin',
-  DEVICE_ID: 'licsys_device_id',
-  ACTIVE_SESSION: 'licsys_active_session'
+// Copy ID
+document.getElementById("copy-btn").onclick = () => {
+    navigator.clipboard.writeText(deviceId);
+    alert("Đã copy ID máy!");
 };
 
-const $ = sel => document.querySelector(sel);
-const $$ = sel => document.querySelectorAll(sel);
+// Demo danh sách key từ admin
+if(!localStorage.getItem("keys")){
+    const demoKeys = [
+        {username:"UserDemo", key:"DEMO1234", duration:1, devices:[deviceId], activated_at:null}
+    ];
+    localStorage.setItem("keys", JSON.stringify(demoKeys));
+}
 
-const Toast = {
-  t: null,
-  show(msg){
-    const el = $('#toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(this.t);
-    this.t = setTimeout(()=>el.classList.remove('show'), 2500);
-  }
+// Kích hoạt key
+document.getElementById("activate-btn").onclick = () => {
+    const key = document.getElementById("key-input").value.trim();
+    if(!key) return alert("Nhập key!");
+    let keys = JSON.parse(localStorage.getItem("keys") || "[]");
+    let keyData = keys.find(k=>k.key===key);
+    if(!keyData) return alert("Key không tồn tại!");
+    if(!keyData.devices.includes(deviceId)) return alert("Thiết bị chưa được admin thêm vào key!");
+
+    keyData.activated_at = keyData.activated_at || Date.now();
+    localStorage.setItem("keys", JSON.stringify(keys));
+
+    showUserPanel(keyData);
 };
 
-function uuidv4(){
-  // RFC4122 v4
-  const buf = new Uint8Array(16);
-  (window.crypto||window.msCrypto).getRandomValues(buf);
-  buf[6] = (buf[6] & 0x0f) | 0x40;
-  buf[8] = (buf[8] & 0x3f) | 0x80;
-  const bth = [...buf].map(b => b.toString(16).padStart(2,'0')).join('');
-  return `${bth.substr(0,8)}-${bth.substr(8,4)}-${bth.substr(12,4)}-${bth.substr(16,4)}-${bth.substr(20)}`;
+// Hiển thị user panel + chat
+function showUserPanel(keyData){
+    document.getElementById("activation-panel").style.display="none";
+    document.getElementById("user-panel").style.display="block";
+    document.getElementById("username").innerText = keyData.username;
+    startCountdown(keyData);
 }
 
-function getDeviceId(){
-  let id = localStorage.getItem(LS_KEYS.DEVICE_ID);
-  if(!id){ id = uuidv4(); localStorage.setItem(LS_KEYS.DEVICE_ID, id); }
-  return id;
+// Logout
+document.getElementById("logout-btn").onclick = ()=> location.reload();
+
+// Thời hạn đếm ngược + màu trạng thái
+function startCountdown(keyData){
+    const statusEl = document.getElementById("key-status");
+    const remainingEl = document.getElementById("remaining");
+
+    const interval = setInterval(()=>{
+        const now = Date.now();
+
+        if(!keyData.activated_at){
+            statusEl.innerText = "Chưa kích hoạt";
+            statusEl.className = "status inactive";
+            remainingEl.innerText = "0:00:00";
+            return;
+        }
+
+        const endTime = keyData.activated_at + keyData.duration*3600*1000;
+        const diff = endTime - now;
+
+        if(diff <= 0){
+            statusEl.innerText = "Hết hạn";
+            statusEl.className = "status expired";
+            remainingEl.innerText = "0:00:00";
+            clearInterval(interval);
+            alert("Key đã hết hạn!");
+            location.reload();
+            return;
+        }
+
+        statusEl.innerText = "Đang hoạt động";
+        statusEl.className = "status active";
+
+        const hours = Math.floor(diff/3600000);
+        const minutes = Math.floor((diff%3600000)/60000);
+        const seconds = Math.floor((diff%60000)/1000);
+        remainingEl.innerText = `${hours}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }, 1000);
 }
 
-function copyToClipboard(text){
-  if(navigator.clipboard && window.isSecureContext){
-    return navigator.clipboard.writeText(text).then(()=>true).catch(()=>false);
-  }else{
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); ta.setSelectionRange(0, text.length);
-    let ok=false; try{ ok=document.execCommand('copy'); }catch(_){}
-    document.body.removeChild(ta);
-    return Promise.resolve(ok);
-  }
+// ChatGPT demo
+document.getElementById("send-btn").onclick = () => {
+    const input = document.getElementById("chat-input");
+    const question = input.value.trim();
+    if(!question) return;
+    appendMessage("Bạn", question);
+    input.value = "";
+
+    // Demo trả lời
+    const demoAnswer = "Đây là câu trả lời demo cho: " + question;
+    setTimeout(()=>appendMessage("GPT", demoAnswer), 500);
+};
+
+// Append message
+function appendMessage(user, text){
+    const chatBox = document.getElementById("chat-box");
+    const p = document.createElement("p");
+    p.innerHTML = `<strong>${user}:</strong> ${text}`;
+    chatBox.appendChild(p);
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
-
-function readKeys(){
-  try{
-    return JSON.parse(localStorage.getItem(LS_KEYS.KEYS_DB) || '[]');
-  }catch(e){ return []; }
-}
-function saveKeys(arr){
-  localStorage.setItem(LS_KEYS.KEYS_DB, JSON.stringify(arr));
-}
-
-function getActiveSession(){
-  try{
-    return JSON.parse(localStorage.getItem(LS_KEYS.ACTIVE_SESSION) || 'null');
-  }catch(e){ return null; }
-}
-function setActiveSession(obj){
-  if(obj) localStorage.setItem(LS_KEYS.ACTIVE_SESSION, JSON.stringify(obj));
-  else localStorage.removeItem(LS_KEYS.ACTIVE_SESSION);
-}
-
-function findKeyById(id){ return readKeys().find(k=>k.id===id); }
-function findKeyByCode(code){
-  if(!code) return null;
-  const norm = code.toUpperCase().replace(/[^A-Z0-9]/g,'');
-  return readKeys().find(k => k.code.replace(/[^A-Z0-9]/g,'') === norm);
-}
-
-function computeStatus(key){
-  const now = Date.now();
-  if(!key) return {label:'Không tìm thấy', cls:'d'};
-  if(now >= key.expiresAt) return {label:'Hết hạn', cls:'d'};
-  const activeCount = Array.isArray(key.devicesActive) ? key.devicesActive.length : 0;
-  return activeCount > 0 ? {label:'Đang hoạt động', cls:'s'} : {label:'Chưa kích hoạt', cls:'w'};
-}
-
-function fmtDT(ts){
-  try{
-    return new Date(ts).toLocaleString();
-  }catch(_){ return '—'; }
-}
-function fmtRemain(ms){
-  if(ms<=0) return '0 giây';
-  const s = Math.floor(ms/1000);
-  const d = Math.floor(s/86400);
-  const h = Math.floor((s%86400)/3600);
-  const m = Math.floor((s%3600)/60);
-  const sec = s%60;
-  const parts = [];
-  if(d) parts.push(`${d} ngày`);
-  if(h||d) parts.push(`${h} giờ`);
-  if(m||d||h) parts.push(`${m} phút`);
-  parts.push(`${sec} giây`);
-  return parts.join(' ');
-}
-
-function ensureDeviceOnActiveList(key, deviceId){
-  if(!key.devicesActive) key.devicesActive = [];
-  if(!key.devicesActive.includes(deviceId)){
-    key.devicesActive.push(deviceId);
-    const all = readKeys(); const idx = all.findIndex(k=>k.id===key.id);
-    if(idx>-1){ all[idx]=key; saveKeys(all); }
-  }
-}
-
-function removeDeviceFromActiveList(keyId, deviceId){
-  const all = readKeys(); const idx = all.findIndex(k=>k.id===keyId);
-  if(idx>-1){
-    const k = all[idx];
-    k.devicesActive = (k.devicesActive||[]).filter(d=>d!==deviceId);
-    all[idx] = k; saveKeys(all);
-  }
-}
-
-function refreshUI(){
-  const deviceId = getDeviceId();
-  $('#deviceId').value = deviceId;
-  const session = getActiveSession();
-
-  if(!session){
-    // No session: show form
-    $('#formView').classList.remove('hidden');
-    $('#activeView').classList.add('hidden');
-    return;
-  }
-
-  const key = findKeyById(session.keyId);
-  // Mất key hoặc bị xoá
-  if(!key){
-    Toast.show('Key không còn tồn tại. Vui lòng kích hoạt lại.');
-    setActiveSession(null);
-    $('#formView').classList.remove('hidden');
-    $('#activeView').classList.add('hidden');
-    return;
-  }
-
-  // Kiểm tra hết hạn
-  const now = Date.now();
-  if(now >= key.expiresAt){
-    Toast.show('Key đã hết hạn. Tự động đăng xuất.');
-    removeDeviceFromActiveList(key.id, deviceId);
-    setActiveSession(null);
-    $('#formView').classList.remove('hidden');
-    $('#activeView').classList.add('hidden');
-    return;
-  }
-
-  // Kiểm tra thiết bị được phép
-  const allowed = Array.isArray(key.devicesAllowed) ? key.devicesAllowed : [];
-  if(!allowed.includes(deviceId)){
-    Toast.show('Thiết bị này không còn được phép dùng key. Đăng xuất.');
-    removeDeviceFromActiveList(key.id, deviceId);
-    setActiveSession(null);
-    $('#formView').classList.remove('hidden');
-    $('#activeView').classList.add('hidden');
-    return;
-  }
-
-  // OK: show active view
-  ensureDeviceOnActiveList(key, deviceId);
-
-  $('#formView').classList.add('hidden');
-  $('#activeView').classList.remove('hidden');
-  $('#userName').textContent = key.username || '—';
-  $('#keyCode').textContent = key.code;
-  $('#expiresAt').textContent = fmtDT(key.expiresAt);
-
-  const st = computeStatus(key);
-  const badge = $('#statusBadge');
-  badge.classList.remove('s','w','d'); badge.classList.add(st.cls);
-  badge.innerHTML = `<span>Trạng thái:</span> <strong>${st.label}</strong>`;
-
-  const remain = key.expiresAt - now;
-  $('#remaining').textContent = fmtRemain(remain);
-}
-
-function activateWithCode(){
-  const codeRaw = $('#licenseInput').value.trim();
-  if(!codeRaw){ Toast.show('Vui lòng nhập key.'); return; }
-  const key = findKeyByCode(codeRaw);
-  if(!key){ Toast.show('Key không hợp lệ.'); return; }
-
-  const now = Date.now();
-  if(now >= key.expiresAt){ Toast.show('Key đã hết hạn.'); return; }
-
-  const deviceId = getDeviceId();
-  const allowed = Array.isArray(key.devicesAllowed) ? key.devicesAllowed : [];
-  if(!allowed.includes(deviceId)){
-    Toast.show('Thiết bị chưa được admin thêm vào key.');
-    return;
-  }
-
-  // Tạo session (gắn theo keyId để vẫn hợp lệ nếu admin reset mã key)
-  const session = { keyId: key.id, deviceId, activatedAt: Date.now() };
-  setActiveSession(session);
-
-  ensureDeviceOnActiveList(key, deviceId);
-  $('#licenseInput').value = '';
-  Toast.show('Kích hoạt thành công!');
-  refreshUI();
-}
-
-function deactivate(){
-  const session = getActiveSession();
-  if(session){
-    removeDeviceFromActiveList(session.keyId, session.deviceId);
-  }
-  setActiveSession(null);
-  Toast.show('Đã đăng xuất bản quyền.');
-  refreshUI();
-}
-
-let ticker = null;
-function startTicker(){
-  if(ticker) clearInterval(ticker);
-  ticker = setInterval(()=>{ refreshUI(); }, 1000);
-}
-
-function init(){
-  $('#year').textContent = new Date().getFullYear();
-  $('#deviceId').value = getDeviceId();
-
-  $('#copyDeviceBtn').addEventListener('click', () => {
-    copyToClipboard($('#deviceId').value).then(ok=>{
-      Toast.show(ok ? 'Đã sao chép Device ID.' : 'Không thể sao chép.');
-    });
-  });
-  $('#activateBtn').addEventListener('click', activateWithCode);
-  $('#licenseInput').addEventListener('keydown', e=>{
-    if(e.key==='Enter') activateWithCode();
-  });
-  $('#deactivateBtn').addEventListener('click', deactivate);
-  $('#refreshBtn').addEventListener('click', refreshUI);
-  $('#copyKeyBtn').addEventListener('click', ()=>{
-    const t = $('#keyCode').textContent.trim();
-    if(!t) return;
-    copyToClipboard(t).then(ok=>Toast.show(ok?'Đã sao chép key.':'Không thể sao chép.'));
-  });
-
-  window.addEventListener('storage', (e)=>{
-    // Các thay đổi từ admin.html (xoá/gia hạn/add thiết bị…) sẽ được phản ánh
-    if(['licsys_keys'].includes(e.key)) refreshUI();
-  });
-
-  refreshUI();
-  startTicker();
-}
-
-document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
