@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quản trị bản quyền | LicSys Demo</title>
+<style>
+  :root{
+    --bg: #0f1226; --card: rgba(255,255,255,0.08); --card-2: rgba(255,255,255,0.10);
+    --text: #eef2ff; --muted:#c7cbe6; --primary:#7c5cff; --primary-2:#3dd9eb;
+    --success:#42d392; --danger:#ff5c7c; --warning:#f6c945; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #2a1b64 0%, rgba(42,27,100,0) 60%),
+      radial-gradient(900px 500px at 110% 30%, #0b6672 0%, rgba(11,102,114,0) 60%),
+      linear-gradient(180deg, #0b0d1f 0%, #0f1226 70%);
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .wrap{width:100%; max-width:1100px}
+  header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px
+  }
+  .logo{display:flex; gap:10px; align-items:center; font-weight:700}
+  .logo .mark{width:36px;height:36px;border-radius:12px;background:conic-gradient(from 180deg,var(--primary),var(--primary-2));box-shadow:0 6px 20px rgba(124,92,255,.4),0 2px 6px rgba(61,217,235,.25)}
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,.10); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; backdrop-filter: blur(10px);
+  }
+  .grid{display:grid; grid-template-columns: 1fr 1fr; gap:18px}
+  @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+  h2{margin:0 0 10px 0; font-size:20px}
+  .muted{color:var(--muted)}
+  .mini{font-size:12px}
+  .input{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06); color:var(--text); outline:none;
+  }
+  .btn{
+    appearance:none; border:none; border-radius:12px; padding:12px 16px; font-weight:700; cursor:pointer;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2)); color:#0b0d1f;
+    box-shadow: 0 8px 24px rgba(124,92,255,.35), inset 0 0 0 1px rgba(255,255,255,.2);
+    transition: transform .15s ease;
+  }
+  .btn:hover{transform: translateY(-1px)}
+  .btn.ghost{background:transparent; color:var(--text); border:1px dashed rgba(255,255,255,.25); box-shadow:none}
+  .btn.warn{background: linear-gradient(135deg, #ff7a7a, #ffb86c); color:#1a0f18}
+  .btn.bad{background: linear-gradient(135deg, #ff5c7c, #ff7a7a); color:#1a0f18}
+  .btn.good{background: linear-gradient(135deg, #49e493, #42d392); color:#0b1a14}
+  .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .table{
+    width:100%; border-collapse:separate; border-spacing:0 8px; margin-top:8px
+  }
+  .table th{ text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:0 8px}
+  .table tr{ background:var(--card-2) }
+  .table td{ padding:12px 8px; border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06)}
+  .table tr:first-child td{ border-top-left-radius:12px; border-top-right-radius:12px }
+  .table tr:last-child td{ border-bottom-left-radius:12px; border-bottom-right-radius:12px }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px;
+    background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12)
+  }
+  .badge.s{background: rgba(66,211,146,.12); color:#b8f5d6; border-color: rgba(66,211,146,.35)}
+  .badge.w{background: rgba(246,201,69,.12); color:#ffe8a6; border-color: rgba(246,201,69,.35)}
+  .badge.d{background: rgba(255,92,124,.12); color:#ffc2cf; border-color: rgba(255,92,124,.35)}
+
+  /* Login layer */
+  #loginLayer{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: radial-gradient(1000px 500px at 20% -10%, rgba(124,92,255,.12), transparent 60%), rgba(5,8,20,.7); backdrop-filter: blur(6px); z-index:10}
+  #loginBox{ width: 460px; max-width: calc(100% - 32px)}
+  .right{ text-align:right }
+
+  .toast{
+    position:fixed; right:16px; bottom:16px; min-width:240px; max-width:360px; z-index:20;
+    background:#121632; color:#eaf2ff; border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:12px 14px; box-shadow: var(--shadow);
+    transform: translateY(20px); opacity:0; pointer-events:none; transition: all .25s ease;
+  }
+  .toast.show{transform: translateY(0); opacity:1}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+  code.inline{background: rgba(255,255,255,.08); padding:2px 6px; border-radius:6px}
+  .hint{font-size:12px; color:var(--muted)}
+  .pill{display:inline-flex; gap:6px; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.06); border:1px dashed rgba(255,255,255,.2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><div class="mark"></div><div>LicSys <span class="muted">Admin</span></div></div>
+    <div class="row">
+      <a class="btn ghost" href="index.html">← Trang người dùng</a>
+      <button class="btn warn" id="logoutBtn">Đăng xuất</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Tài khoản -->
+    <section class="card">
+      <h2>Tài khoản quản trị</h2>
+      <div class="hint">Mặc định: <code class="inline">admin / admin123</code>. Hãy đổi mật khẩu sau khi đăng nhập.</div>
+      <div class="row" style="margin-top:10px">
+        <input id="oldPw" class="input" type="password" placeholder="Mật khẩu hiện tại">
+        <input id="newPw1" class="input" type="password" placeholder="Mật khẩu mới">
+        <input id="newPw2" class="input" type="password" placeholder="Nhập lại mật khẩu mới">
+        <button class="btn" id="changePwBtn">Đổi mật khẩu</button>
+      </div>
+    </section>
+
+    <!-- API Key -->
+    <section class="card">
+      <h2>ChatGPT API Key</h2>
+      <div class="row">
+        <input id="apiKey" class="input mono" placeholder="sk-... (chỉ lưu localStorage)">
+        <button class="btn" id="saveApiBtn">Lưu</button>
+        <button class="btn ghost" id="showApiBtn">Hiện/Ẩn</button>
+        <button class="btn ghost" id="copyApiBtn">Copy</button>
+        <button class="btn bad" id="deleteApiBtn">Xoá</button>
+      </div>
+      <div class="hint" style="margin-top:6px">API chỉ hiển thị & lưu nội bộ (demo), không gửi ra ngoài.</div>
+    </section>
+
+    <!-- Tạo key -->
+    <section class="card">
+      <h2>Tạo key kích hoạt</h2>
+      <div class="row">
+        <input id="userName" class="input" placeholder="Tên người dùng (VD: Nguyễn Văn A)">
+        <input id="hours" class="input" type="number" min="1" step="1" placeholder="Thời hạn (giờ)">
+      </div>
+      <div class="row" style="margin-top:10px">
+        <input id="deviceInit" class="input mono" placeholder="Device ID ban đầu (tuỳ chọn)">
+        <input id="note" class="input" placeholder="Ghi chú (tuỳ chọn)">
+        <button class="btn good" id="createKeyBtn">Tạo key</button>
+      </div>
+      <div class="hint" style="margin-top:6px">Có thể thêm nhiều thiết bị cho cùng 1 key sau khi tạo.</div>
+      <div id="createdKeyBox" class="row" style="margin-top:10px; display:none">
+        <span class="pill">Key mới: <strong class="mono" id="createdKeyText"></strong></span>
+        <button class="btn small" id="copyCreatedKeyBtn">Copy key</button>
+      </div>
+    </section>
+
+    <!-- Danh sách key -->
+    <section class="card" style="grid-column: 1 / -1">
+      <div class="row" style="justify-content:space-between">
+        <h2>Danh sách key</h2>
+        <div class="row">
+          <button class="btn ghost small" id="exportBtn">Xuất JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display:none">
+          <button class="btn ghost small" id="importBtn">Nhập JSON</button>
+        </div>
+      </div>
+      <table class="table" id="keyTable">
+        <thead>
+          <tr>
+            <th>Người dùng</th>
+            <th>Mã key</th>
+            <th>Trạng thái</th>
+            <th>Hết hạn</th>
+            <th>Thiết bị (được phép / đang dùng)</th>
+            <th class="right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="keyTbody"></tbody>
+      </table>
+      <div class="hint">Trạng thái phản ánh theo thời gian thực (tab người dùng có thể cập nhật qua <code class="inline">localStorage</code>).</div>
+    </section>
+  </div>
+</div>
+
+<!-- Lớp đăng nhập -->
+<div id="loginLayer">
+  <div class="card" id="loginBox">
+    <h2>Đăng nhập Admin</h2>
+    <div class="muted">Nhập tài khoản quản trị để bắt đầu.</div>
+    <div class="row" style="margin-top:10px">
+      <input id="loginUser" class="input" placeholder="Tài khoản" value="admin">
+      <input id="loginPass" class="input" placeholder="Mật khẩu" type="password">
+    </div>
+    <div class="row" style="margin-top:10px; justify-content:space-between">
+      <div class="hint">Mặc định: <code class="inline">admin / admin123</code></div>
+      <button class="btn" id="loginBtn">Đăng nhập</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ===========================
+   LicSys DEMO Admin (Client-Only)
+   - Quản lý qua localStorage
+   =========================== */
+
+const LS_KEYS = {
+  KEYS_DB: 'licsys_keys',
+  ADMIN_DB: 'licsys_admin',
+  API_KEY:  'licsys_api_key',
+  ADMIN_SESSION: 'licsys_admin_session'
+};
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+
+const Toast = { t:null, show(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(this.t); this.t=setTimeout(()=>el.classList.remove('show'),2500);}};
+
+function uuidv4(){
+  const buf=new Uint8Array(16); (crypto||msCrypto).getRandomValues(buf);
+  buf[6]=(buf[6]&0x0f)|0x40; buf[8]=(buf[8]&0x3f)|0x80;
+  const b=[...buf].map(b=>b.toString(16).padStart(2,'0')).join('');
+  return `${b.substr(0,8)}-${b.substr(8,4)}-${b.substr(12,4)}-${b.substr(16,4)}-${b.substr(20)}`;
+}
+function randKey(){
+  // XXXX-XXXX-XXXX (A-Z0-9)
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // bỏ O,0,I,1 để tránh nhầm
+  const pick = n => Array.from({length:n},()=>alphabet[Math.floor(Math.random()*alphabet.length)]).join('');
+  return `${pick(4)}-${pick(4)}-${pick(4)}`;
+}
+
+function fakeHash(s){
+  // Hash đơn giản cho demo (không an toàn). Sản xuất dùng SubtleCrypto SHA-256.
+  let out = 0; for(let i=0;i<s.length;i++){ out = (out*31 + s.charCodeAt(i)) >>> 0; }
+  return btoa(String(out));
+}
+
+function ensureAdminSeed(){
+  let admin = JSON.parse(localStorage.getItem(LS_KEYS.ADMIN_DB) || 'null');
+  if(!admin){
+    admin = { username:'admin', passwordHash: fakeHash('admin123'), createdAt: Date.now() };
+    localStorage.setItem(LS_KEYS.ADMIN_DB, JSON.stringify(admin));
+  }
+}
+function getAdmin(){ try{return JSON.parse(localStorage.getItem(LS_KEYS.ADMIN_DB)||'null');}catch(e){return null;} }
+function saveAdmin(obj){ localStorage.setItem(LS_KEYS.ADMIN_DB, JSON.stringify(obj)); }
+function setSession(on){ if(on){ sessionStorage.setItem(LS_KEYS.ADMIN_SESSION, JSON.stringify({at:Date.now()})); } else { sessionStorage.removeItem(LS_KEYS.ADMIN_SESSION);} }
+function isLoggedIn(){ return !!sessionStorage.getItem(LS_KEYS.ADMIN_SESSION); }
+
+function readKeys(){ try{return JSON.parse(localStorage.getItem(LS_KEYS.KEYS_DB)||'[]');}catch(e){return [];} }
+function saveKeys(arr){ localStorage.setItem(LS_KEYS.KEYS_DB, JSON.stringify(arr)); }
+
+function computeStatus(key){
+  const now = Date.now();
+  if(now>=key.expiresAt) return {label:'Hết hạn', cls:'d'};
+  const active = (key.devicesActive||[]).length;
+  return active>0 ? {label:'Đang hoạt động', cls:'s'} : {label:'Chưa kích hoạt', cls:'w'};
+}
+function fmtDT(ts){ try{return new Date(ts).toLocaleString();}catch(_){return '—';} }
+function remainText(key){
+  const ms = key.expiresAt - Date.now();
+  if(ms<=0) return '0 giây';
+  const s=Math.floor(ms/1000);
+  const d=Math.floor(s/86400), h=Math.floor((s%86400)/3600), m=Math.floor((s%3600)/60), sec=s%60;
+  const p=[]; if(d) p.push(`${d} ngày`); if(h||d) p.push(`${h} giờ`); if(m||d||h) p.push(`${m} phút`); p.push(`${sec} giây`);
+  return p.join(' ');
+}
+
+function getApi(){ return localStorage.getItem(LS_KEYS.API_KEY)||''; }
+function setApi(v){ if(v) localStorage.setItem(LS_KEYS.API_KEY, v); else localStorage.removeItem(LS_KEYS.API_KEY); }
+
+function renderKeys(){
+  const tbody = $('#keyTbody');
+  const keys = readKeys().sort((a,b)=>a.expiresAt-b.expiresAt);
+  if(!keys.length){ tbody.innerHTML = `<tr><td colspan="6" class="muted">Chưa có key nào.</td></tr>`; return; }
+  tbody.innerHTML = '';
+  keys.forEach(k=>{
+    const st = computeStatus(k);
+    const tr = document.createElement('tr');
+    const allowed = (k.devicesAllowed||[]).length;
+    const active = (k.devicesActive||[]).length;
+
+    tr.innerHTML = `
+      <td>${k.username||'—'}<div class="mini muted">${k.note?`Ghi chú: ${k.note}`:''}</div></td>
+      <td>
+        <span class="mono" data-mask="${k.code}">${maskKey(k.code)}</span>
+        <div class="row" style="margin-top:6px">
+          <button class="btn ghost small" data-act="reveal" data-id="${k.id}">Hiện/Ẩn</button>
+          <button class="btn ghost small" data-act="copy" data-id="${k.id}">Copy</button>
+        </div>
+      </td>
+      <td><span class="badge ${st.cls}">${st.label}</span><div class="mini muted">${remainText(k)}</div></td>
+      <td>${fmtDT(k.expiresAt)}</td>
+      <td>${allowed} / ${active}</td>
+      <td class="right">
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn small" data-act="adddev" data-id="${k.id}">Thêm thiết bị</button>
+          <button class="btn ghost small" data-act="listdev" data-id="${k.id}">Danh sách</button>
+          <button class="btn ghost small" data-act="extend" data-id="${k.id}">Gia hạn</button>
+          <button class="btn ghost small" data-act="reset" data-id="${k.id}">Reset key</button>
+          <button class="btn bad small" data-act="delete" data-id="${k.id}">Xoá</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Gán handler cho các nút
+  tbody.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.addEventListener('click', handleRowAction);
+  });
+}
+
+function maskKey(k){
+  if(!k) return '—';
+  const plain = k;
+  const head = plain.slice(0,4);
+  const tail = plain.slice(-4);
+  return `${head}••••••${tail}`;
+}
+
+function handleRowAction(e){
+  const act = e.currentTarget.getAttribute('data-act');
+  const id  = e.currentTarget.getAttribute('data-id');
+  const all = readKeys();
+  const idx = all.findIndex(x=>x.id===id);
+  if(idx<0){ Toast.show('Không tìm thấy key.'); return; }
+  const k = all[idx];
+
+  if(act==='copy'){
+    navigator.clipboard.writeText(k.code).then(()=>Toast.show('Đã copy key.'));
+  }
+  else if(act==='reveal'){
+    const span = e.currentTarget.closest('td').querySelector('span.mono');
+    const masked = span.textContent.includes('••••');
+    span.textContent = masked ? span.getAttribute('data-mask') : maskKey(span.getAttribute('data-mask'));
+  }
+  else if(act==='delete'){
+    if(!confirm(`Xoá key của "${k.username}"? Thao tác không thể hoàn tác.`)) return;
+    all.splice(idx,1); saveKeys(all); renderKeys(); Toast.show('Đã xoá.');
+  }
+  else if(act==='extend'){
+    const hours = prompt('Nhập số giờ muốn gia hạn thêm:', '24');
+    const h = parseInt(hours,10);
+    if(!(h>0)) return;
+    const base = Math.max(Date.now(), k.expiresAt);
+    k.expiresAt = base + h*3600*1000;
+    all[idx]=k; saveKeys(all); renderKeys(); Toast.show(`Đã gia hạn thêm ${h} giờ.`);
+  }
+  else if(act==='reset'){
+    if(!confirm('Reset mã key (người dùng cũ sẽ dùng mã mới). Hết hạn giữ nguyên. Tiếp tục?')) return;
+    k.code = randKey();
+    k.lastResetAt = Date.now();
+    all[idx]=k; saveKeys(all); renderKeys(); Toast.show('Đã reset key.');
+  }
+  else if(act==='adddev'){
+    const did = prompt('Nhập Device ID cần thêm vào key: (dán từ người dùng)', '');
+    if(!did) return;
+    k.devicesAllowed = k.devicesAllowed||[];
+    if(!k.devicesAllowed.includes(did)){ k.devicesAllowed.push(did); }
+    all[idx]=k; saveKeys(all); renderKeys(); Toast.show('Đã thêm thiết bị.');
+  }
+  else if(act==='listdev'){
+    const allowed = (k.devicesAllowed||[]);
+    const active  = (k.devicesActive||[]);
+    const msg = [
+      `Thiết bị được phép (${allowed.length}):`,
+      allowed.length? allowed.map(x=>'• '+x).join('\n') : '—',
+      '',
+      `Thiết bị đang dùng (${active.length}):`,
+      active.length? active.map(x=>'• '+x).join('\n') : '—',
+      '',
+      'Nhập Device ID để XOÁ khỏi danh sách được phép (bỏ trống để thoát):'
+    ].join('\n');
+    const rm = prompt(msg, '');
+    if(rm){
+      const i = allowed.indexOf(rm);
+      if(i>-1){ allowed.splice(i,1); k.devicesAllowed = allowed; }
+      // Nếu xoá thiết bị đang hoạt động → loại khỏi active để buộc đăng xuất phía người dùng ở lần kiểm tra kế
+      k.devicesActive = (k.devicesActive||[]).filter(d=>d!==rm);
+      const all = readKeys(); const idx2 = all.findIndex(x=>x.id===k.id); all[idx2]=k; saveKeys(all); renderKeys();
+      Toast.show('Đã cập nhật danh sách thiết bị.');
+    }
+  }
+}
+
+function createKey(){
+  const username = $('#userName').value.trim();
+  const hours    = parseInt($('#hours').value,10);
+  const device   = $('#deviceInit').value.trim();
+  const note     = $('#note').value.trim();
+
+  if(!username){ Toast.show('Vui lòng nhập tên người dùng.'); return; }
+  if(!(hours>0)){ Toast.show('Thời hạn (giờ) phải lớn hơn 0.'); return; }
+
+  const code = randKey();
+  const now = Date.now();
+  const key = {
+    id: uuidv4(),
+    code,
+    username,
+    note,
+    durationHours: hours,
+    createdAt: now,
+    expiresAt: now + hours*3600*1000,
+    devicesAllowed: device ? [device] : [],
+    devicesActive: []
+  };
+
+  const all = readKeys();
+  all.push(key); saveKeys(all);
+  renderKeys();
+
+  $('#createdKeyBox').style.display = 'flex';
+  $('#createdKeyText').textContent = code;
+  $('#copyCreatedKeyBtn').onclick = ()=> navigator.clipboard.writeText(code).then(()=>Toast.show('Đã copy key vừa tạo.'));
+  $('#userName').value=''; $('#hours').value=''; $('#deviceInit').value=''; $('#note').value='';
+  Toast.show('Tạo key thành công.');
+}
+
+function exportJSON(){
+  const data = {
+    exportedAt: new Date().toISOString(),
+    keys: readKeys()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`licsys-keys-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function importJSON(file){
+  const r = new FileReader();
+  r.onload = e=>{
+    try{
+      const obj = JSON.parse(e.target.result);
+      if(!obj || !Array.isArray(obj.keys)) throw new Error('Sai định dạng');
+      saveKeys(obj.keys); renderKeys(); Toast.show('Đã nhập dữ liệu.');
+    }catch(err){ Toast.show('Không thể nhập JSON.'); }
+  };
+  r.readAsText(file);
+}
+
+function loadApiUI(){
+  const v = getApi();
+  const input = $('#apiKey');
+  input.value = v ? maskApi(v) : '';
+  input.dataset.real = v || '';
+}
+function maskApi(v){
+  if(!v) return '';
+  const head = v.slice(0,6); const tail = v.slice(-4);
+  return `${head}••••••${tail}`;
+}
+
+/* ---------- Auth ---------- */
+function doLogin(){
+  const u = $('#loginUser').value.trim();
+  const p = $('#loginPass').value;
+  const admin = getAdmin();
+  if(!admin){ Toast.show('Lỗi dữ liệu admin.'); return; }
+  if(u===admin.username && fakeHash(p)===admin.passwordHash){
+    setSession(true);
+    $('#loginLayer').style.display='none';
+    Toast.show('Đăng nhập thành công.');
+    return true;
+  }
+  Toast.show('Sai tài khoản hoặc mật khẩu.');
+  return false;
+}
+function doLogout(){
+  setSession(false);
+  $('#loginLayer').style.display='flex';
+  Toast.show('Đã đăng xuất.');
+}
+function changePassword(){
+  const admin = getAdmin();
+  const old = $('#oldPw').value; const n1 = $('#newPw1').value; const n2 = $('#newPw2').value;
+  if(fakeHash(old)!==admin.passwordHash){ Toast.show('Mật khẩu hiện tại không đúng.'); return; }
+  if(!n1 || n1.length<6){ Toast.show('Mật khẩu mới phải ≥ 6 ký tự.'); return; }
+  if(n1!==n2){ Toast.show('Mật khẩu mới nhập lại không khớp.'); return; }
+  admin.passwordHash = fakeHash(n1); saveAdmin(admin);
+  $('#oldPw').value = $('#newPw1').value = $('#newPw2').value = '';
+  Toast.show('Đã đổi mật khẩu.');
+}
+
+/* ---------- Init ---------- */
+function init(){
+  ensureAdminSeed();
+
+  // Hiển thị/ẩn lớp login
+  $('#loginLayer').style.display = isLoggedIn() ? 'none' : 'flex';
+
+  // Nút đăng nhập/đăng xuất
+  $('#loginBtn').addEventListener('click', doLogin);
+  $('#logoutBtn').addEventListener('click', doLogout);
+
+  // Đổi mật khẩu
+  $('#changePwBtn').addEventListener('click', changePassword);
+
+  // API Key
+  loadApiUI();
+  $('#saveApiBtn').addEventListener('click', ()=>{
+    const input = $('#apiKey');
+    let raw = input.dataset.real || '';
+    // Nếu người dùng dán mới vào ô (không mask)
+    if(input.value && !input.value.includes('••••')) raw = input.value.trim();
+    if(!raw){ Toast.show('Vui lòng nhập API key.'); return; }
+    setApi(raw); loadApiUI(); Toast.show('Đã lưu API key.');
+  });
+  $('#deleteApiBtn').addEventListener('click', ()=>{ setApi(''); loadApiUI(); Toast.show('Đã xoá API key.');});
+  $('#showApiBtn').addEventListener('click', ()=>{
+    const input = $('#apiKey'); const real = input.dataset.real||'';
+    if(!real) return;
+    input.value = input.value.includes('••••') ? real : maskApi(real);
+  });
+  $('#copyApiBtn').addEventListener('click', ()=>{
+    const real = $('#apiKey').dataset.real || '';
+    if(!real){ Toast.show('Chưa có API key.'); return; }
+    navigator.clipboard.writeText(real).then(()=>Toast.show('Đã copy API key.'));
+  });
+
+  // Tạo key
+  $('#createKeyBtn').addEventListener('click', createKey);
+
+  // Xuất/Nhập
+  $('#exportBtn').addEventListener('click', exportJSON);
+  $('#importBtn').addEventListener('click', ()=> $('#importFile').click());
+  $('#importFile').addEventListener('change', (e)=>{ const f=e.target.files[0]; if(f) importJSON(f); e.target.value=''; });
+
+  renderKeys();
+
+  // Đồng bộ giữa các tab
+  window.addEventListener('storage', (e)=>{
+    if(e.key===LS_KEYS.KEYS_DB) renderKeys();
+    if(e.key===LS_KEYS.API_KEY) loadApiUI();
+  });
+
+  // Cập nhật còn lại theo thời gian
+  setInterval(()=>{ renderKeys(); }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
